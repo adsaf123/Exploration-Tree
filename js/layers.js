@@ -1,28 +1,98 @@
-addLayer("p", {
-    name: "prestige", // This is optional, only used in a few places, If absent it just uses the layer id.
-    symbol: "P", // This appears on the layer's node. Default is the id with the first letter capitalized
-    position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
-    startData() { return {
-        unlocked: true,
-		points: new Decimal(0),
-    }},
-    color: "#4BDC13",
-    requires: new Decimal(10), // Can be a function that takes requirement increases into account
-    resource: "prestige points", // Name of prestige currency
-    baseResource: "points", // Name of resource prestige is based on
-    baseAmount() {return player.points}, // Get the current amount of baseResource
-    type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
-    exponent: 0.5, // Prestige currency exponent
-    gainMult() { // Calculate the multiplier for main currency from bonuses
-        mult = new Decimal(1)
-        return mult
-    },
-    gainExp() { // Calculate the exponent on main currency from bonuses
-        return new Decimal(1)
-    },
-    row: 0, // Row the layer is in on the tree (0 is the first row)
-    hotkeys: [
-        {key: "p", description: "P: Reset for prestige points", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
+var adventureMap = {
+    '101': 'path',
+    '102': 'path',
+    '103': 'forest',
+    '201': 'shop'
+}
+
+function encodeGridId(row, col) {
+    return col < 10 ? row + "0" + col : "" + row + col
+}
+
+function decodeGridId(id) {
+    if (typeof id === "number") {
+        id = id.toString();
+    }
+    if (id.length == 3) {
+        return {
+            row: Number(id[0]),
+            col: Number(id[1] + id[2])
+        }
+    } else {
+        return {
+            row: Number(id[0] + id[1]),
+            col: Number(id[2] + id[3])
+        }
+    }
+}
+
+addLayer("S", {
+    row: "side",
+    name: "Story",
+    resource: "Lore",
+    position: 1,
+    color: "#FFFFFF",
+
+    tabFormat: [
+        ["infobox", "Introduction"]
     ],
-    layerShown(){return true}
+
+    startData() {
+        return {
+            unlocked: true,
+            points: new Decimal(0)
+        }
+    },
+
+    infoboxes: {
+        "Introduction": {
+            title: "Introduction",
+            body() {
+                return `
+                    Welcome to my new mod! It's a exploration based mod. 
+                    Navigate using noncentral nodes and access content of area you are in using central node.
+                    Map is in the next side layer.
+                `
+            }
+        }
+    }
+})
+
+addLayer("M", {
+    row: "side",
+    name: "Map",
+    resource: "Discovered locations",
+    position: 2,
+    color: "#FFFF99",
+
+    tabFormat: [
+        "grid"
+    ],
+
+    startData() {
+        return {
+            unlocked: true,
+            points: new Decimal(1),
+            currentRow: 1,
+            currentCol: 1,
+        }
+    },
+
+    grid: {
+        rows: 9,
+        cols: 9,
+
+        getStartData(id) {
+            return adventureMap[id] !== undefined ? adventureMap[id] : 'blank'
+        },
+
+        getCanClick(data, id) {
+            return true
+        },
+
+        getDisplay(data, id) {
+            return id === encodeGridId(player[this.layer].currentRow, player[this.layer].currentCol) ? "⭐" : ""
+        },
+
+    }
 })
