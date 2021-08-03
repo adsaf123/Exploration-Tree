@@ -3,7 +3,7 @@ let modInfo = {
 	id: "exploration-tree-fk",
 	author: "nobody",
 	pointsName: "points",
-	modFiles: ["layers.js", "tree.js", "rose.js"],
+	modFiles: ["mod_utils.js", "layers.js", "tree.js", "rose.js"],
 
 	discordName: "",
 	discordLink: "",

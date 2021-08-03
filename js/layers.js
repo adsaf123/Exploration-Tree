@@ -1,36 +1,44 @@
-var adventureMap = {
-    '101': 'path',
-    '102': 'path',
-    '103': 'forest',
-    '201': 'shop'
+var adventureMap = {}
+
+enemy = {
+    HP: new Decimal(10),
+    DMG: new Decimal(1),
+    ATK: new Decimal(10000),
 }
 
-function encodeGridId(row, col) {
-    return col < 10 ? row + "0" + col : "" + row + col
-}
+var locations = [
+    {
+        x: 0,
+        y: 0,
+        type: "path"
+    },
 
-function decodeGridId(id) {
-    if (typeof id === "number") {
-        id = id.toString();
+    {
+        x: 1,
+        y: 0,
+        type: "path"
+    },
+
+    {
+        x: 2,
+        y: 0,
+        type: "forest"
+    },
+
+    {
+        x: 0,
+        y: 1,
+        type: "shop"
     }
-    if (id.length == 3) {
-        return {
-            row: Number(id[0]),
-            col: Number(id[1] + id[2])
-        }
-    } else {
-        return {
-            row: Number(id[0] + id[1]),
-            col: Number(id[2] + id[3])
-        }
-    }
-}
+]
 
-addLayer("S", {
+adventureMap = generateMap(locations)
+
+addLayer("I", {
     row: "side",
+    position: 1,
     name: "Story",
     resource: "Lore",
-    position: 1,
     color: "#FFFFFF",
 
     tabFormat: [
@@ -60,9 +68,9 @@ addLayer("S", {
 
 addLayer("M", {
     row: "side",
+    position: 2,
     name: "Map",
     resource: "Discovered locations",
-    position: 2,
     color: "#FFFF99",
 
     tabFormat: [
@@ -73,8 +81,7 @@ addLayer("M", {
         return {
             unlocked: true,
             points: new Decimal(1),
-            currentRow: 1,
-            currentCol: 1,
+            drawnGrid: false
         }
     },
 
@@ -83,7 +90,7 @@ addLayer("M", {
         cols: 9,
 
         getStartData(id) {
-            return adventureMap[id] !== undefined ? adventureMap[id] : 'blank'
+            return "blank"
         },
 
         getCanClick(data, id) {
@@ -91,8 +98,159 @@ addLayer("M", {
         },
 
         getDisplay(data, id) {
-            return id === encodeGridId(player[this.layer].currentRow, player[this.layer].currentCol) ? "⭐" : ""
+            return id == encodeGridId(5, 5) ? "⭐" : ""
         },
 
+        getStyle(data, id) {
+            var color = "#FFFF99"
+
+            if (data == "shop") {
+                color = "#ffee00"
+            } else if (data == "forest") {
+                color = "#00aa33"
+            } else if (data == "path") {
+                color = "#cccccc"
+            }
+
+            return {
+                "background-color": color
+            }
+        },
+
+        getTooltip(data, id) {
+            if (typeof data == "undefined") return
+
+            if (data == "blank") {
+                return "Nothing"
+            } else {
+                return data[0].toUpperCase() + data.slice(1)
+            }
+        }
+    },
+
+    update(diff) {
+        if (!player[this.layer].drawnGrid) {
+            drawGrid()
+            player[this.layer].drawnGrid = true
+        }
+    }
+})
+
+addLayer("P", {
+    row: "side",
+    position: 3,
+    name: "Player",
+    resource: "EXP",
+    color: "#ff6600",
+
+    startData() {
+        return {
+            unlocked: true,
+            points: new Decimal(0),
+
+            //health and damage
+            currentHealth: new Decimal(10),
+            maxHealth: new Decimal(10),
+            healTimer: new Decimal(10000),
+            damage: new Decimal(2),
+            attackTimer: new Decimal(3000),
+
+            //position
+            playerX: 0,
+            playerY: 0,
+
+            //fighting stuff
+            lookingForTroubles: false,
+            lookingForTroublesTimer: 0,
+            fighting: false,
+
+            //stats
+            STR: new Decimal(0),
+            DEX: new Decimal(0),
+            CON: new Decimal(0),
+            CHR: new Decimal(0),
+            INT: new Decimal(0),
+            WIS: new Decimal(0),
+
+        }
+    }
+})
+
+addLayer("L", {
+    row: 1,
+    position: 1,
+    name: "Current Location",
+    resource: "Current Location",
+    color: "#009911",
+
+    tabFormat: generateLocationDisplay,
+
+    startData() {
+        return {
+            unlocked: true,
+            points: new Decimal(0),
+        }
+    },
+
+    clickables: {
+        "troubles": {
+            display() {
+                return player["P"].lookingForTroubles ? "Click here to stop looking for troubles" : "Click here to begin looking for troubles"
+            },
+
+            canClick() {
+                return !player["P"].fighting
+            },
+
+            onClick() {
+                player["P"].lookingForTroubles = !player["P"].lookingForTroubles
+                player["P"].lookingForTroublesTimer = 0
+            }
+        }
+    },
+
+    bars: {
+        "troubles-bar": {
+            direction: RIGHT,
+            width: 300,
+            height: 50,
+            progress() {
+                return player["P"].lookingForTroublesTimer
+            }
+        }
+    },
+
+    update(diff) {
+        var msDiff = diff * 1000
+
+        if (player["P"].lookingForTroubles) {
+            if (!player["P"].fighting) {
+                player["P"].lookingForTroublesTimer += 1 / 60
+                if (player["P"].lookingForTroublesTimer >= 1) {
+                    spawnEnemy()
+                    player["P"].fighting = true
+                }
+            } else {
+                player["P"].attackTimer = player["P"].attackTimer.sub(msDiff)
+                if (player["P"].attackTimer.lte(0)) {
+                    playerAttack()
+                    player["P"].attackTimer = new Decimal(3000)
+                }
+
+                enemy.ATK =  enemy.ATK.sub(msDiff)
+                if (enemy.ATK.lte(0)) {
+                    enemyAttack()
+                    enemy.ATK = new Decimal(10000)
+                }
+            }
+        }
+
+        player["P"].healTimer -= msDiff
+        if (player["P"].healTimer <= 0) {
+            if (player["P"].currentHealth.lt(player["P"].maxHealth)) {
+                player["P"].currentHealth = player["P"].currentHealth.add(1)
+            }
+            player["P"].healTimer = 10000
+        }
     }
 })

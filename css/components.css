@@ -122,6 +122,7 @@
 
 /* Tiles are gridables */
 .tile {
+	transition-duration: 0s;
 	height: 80px;
 	width: 80px;
 	border-radius: 15%;
