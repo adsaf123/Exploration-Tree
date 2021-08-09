@@ -147,6 +147,7 @@ addLayer("P", {
         return {
             unlocked: true,
             points: new Decimal(0),
+            levels: new Decimal(0),
 
             //health and damage
             currentHealth: new Decimal(10),
@@ -172,6 +173,87 @@ addLayer("P", {
             INT: new Decimal(0),
             WIS: new Decimal(0),
 
+        }
+    },
+
+    tabFormat: [
+        "main-display",
+        "blank",
+        ["display-text", "Every % here is multiplicative and have a minimum value of 1"],
+        "blank",
+        ["row", [
+            ["display-text", "STRENGTH: Increase base damage by 5%"],
+            "blank",
+            ["clickable", "STR-button"],
+        ]],
+        ["row", [
+            ["display-text", "DEXTERITY: Increase player speed by 5%"],
+            "blank",
+            ["clickable", "DEX-button"],
+        ]],
+        ["row", [
+            ["display-text", "CONSTITUTION: Increase Max HP by 5%"],
+            "blank",
+            ["clickable", "CON-button"],
+        ]],
+        ["row", [
+            ["display-text", "CHARISMA: Decrease prices in shop by 5%"],
+            "blank",
+            ["clickable", "CHR-button"],
+        ]],
+        ["row", [
+            ["display-text", "INTELIGENCE: Increase EXP gain by 5%"],
+            "blank",
+            ["clickable", "INT-button"],
+        ]],
+        ["row", [
+            ["display-text", "WISDOM: Make sacrifice formula 5% better"],
+            "blank",
+            ["clickable", "WIS-button"],
+        ]],
+    ],
+
+    clickables: {
+        "STR-button": {
+            display() { return "+" },
+            canClick() { return player[this.layer].levels.gt(0) },
+            onClick() { player[this.layer].STR.add(1); player[this.layer].levels.sub(1) },
+            style() { return {"height":"50px", "width":"50px", "min-height":"50px"} }
+        },
+
+        "DEX-button": {
+            display() { return "+" },
+            canClick() { return player[this.layer].levels.gt(0) },
+            onClick() { player[this.layer].DEX.add(1); player[this.layer].levels.sub(1) },
+            style() { return {"height":"50px", "width":"50px", "min-height":"50px"} }
+        },
+
+        "CON-button": {
+            display() { return "+" },
+            canClick() { return player[this.layer].levels.gt(0) },
+            onClick() { player[this.layer].CON.add(1); player[this.layer].levels.sub(1) },
+            style() { return {"height":"50px", "width":"50px", "min-height":"50px"} }
+        },
+
+        "CHR-button": {
+            display() { return "+" },
+            canClick() { return player[this.layer].levels.gt(0) },
+            onClick() { player[this.layer].CHR.add(1); player[this.layer].levels.sub(1) },
+            style() { return {"height":"50px", "width":"50px", "min-height":"50px"} }
+        },
+
+        "INT-button": {
+            display() { return "+" },
+            canClick() { return player[this.layer].levels.gt(0) },
+            onClick() { player[this.layer].INT.add(1); player[this.layer].levels.sub(1) },
+            style() { return {"height":"50px", "width":"50px", "min-height":"50px"} }
+        },
+
+        "WIS-button": {
+            display() { return "+" },
+            canClick() { return player[this.layer].levels.gt(0) },
+            onClick() { player[this.layer].WIS.add(1); player[this.layer].levels.sub(1) },
+            style() { return {"height":"50px", "width":"50px", "min-height":"50px"} }
         }
     }
 })
@@ -225,7 +307,7 @@ addLayer("L", {
 
         if (player["P"].lookingForTroubles) {
             if (!player["P"].fighting) {
-                player["P"].lookingForTroublesTimer += 1 / 60
+                player["P"].lookingForTroublesTimer += diff / 3
                 if (player["P"].lookingForTroublesTimer >= 1) {
                     spawnEnemy()
                     player["P"].fighting = true
