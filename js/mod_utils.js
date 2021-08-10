@@ -68,15 +68,15 @@ function generateLocationDisplay() {
                 [
                     ["column", [
                         ["display-text", "YOU"],
-                        ["display-text", "HP: " + player["P"].currentHealth + "/" + player["P"].maxHealth],
-                        ["display-text", "DMG: " + player["P"].damage],
+                        ["display-text", "HP: " + format(player["P"].currentHealth) + "/" + format(player["P"].maxHealth)],
+                        ["display-text", "DMG: " + format(player["P"].damage)],
                         ["display-text", "Will attack in " + format(player["P"].attackTimer.div(1000)) + "s"]
                     ]],
                     ["blank", ["200px", "10px"]],
                     ["column", [
                         ["display-text", "ENEMY"],
-                        ["display-text", "HP: " + enemy.HP ],
-                        ["display-text", "DMG: " + enemy.DMG ],
+                        ["display-text", "HP: " + format(enemy.HP) ],
+                        ["display-text", "DMG: " + format(enemy.DMG) ],
                         ["display-text", "Will attack in " + format(enemy.ATK.div(1000)) + "s" ]
                     ]]
                 ]
