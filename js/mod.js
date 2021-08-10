@@ -1,20 +1,20 @@
 let modInfo = {
-	name: "The ??? Tree",
+	name: "The Exlporation Tree",
 	id: "exploration-tree-fk",
-	author: "nobody",
-	pointsName: "points",
+	author: "adsaf",
+	pointsName: "coins",
 	modFiles: ["mod_utils.js", "layers.js", "tree.js", "rose.js"],
 
 	discordName: "",
 	discordLink: "",
-	initialStartPoints: new Decimal (10), // Used for hard resets and new players
+	initialStartPoints: new Decimal (0), // Used for hard resets and new players
 	offlineLimit: 1,  // In hours
 }
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.0",
-	name: "Literally nothing",
+	num: "0.1",
+	name: "First impression",
 }
 
 let changelog = `<h1>Changelog:</h1><br>

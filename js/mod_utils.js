@@ -49,7 +49,11 @@ function generateLocationDisplay() {
         ]
     } else if (location == "shop") {
         return [
-            ["display-text", "Welcome to the shop"]
+            ["display-text", "Welcome to the shop"],
+            "blank",
+            ["row", [
+                ["buyable", "shop-sword"]
+            ]]
         ]
     } else if (location == "forest") {
         return [
@@ -66,14 +70,14 @@ function generateLocationDisplay() {
                         ["display-text", "YOU"],
                         ["display-text", "HP: " + player["P"].currentHealth + "/" + player["P"].maxHealth],
                         ["display-text", "DMG: " + player["P"].damage],
-                        ["display-text", "Will attack in " + (player["P"].attackTimer/1000) + "s"]
+                        ["display-text", "Will attack in " + format(player["P"].attackTimer.div(1000)) + "s"]
                     ]],
                     ["blank", ["200px", "10px"]],
                     ["column", [
                         ["display-text", "ENEMY"],
                         ["display-text", "HP: " + enemy.HP ],
                         ["display-text", "DMG: " + enemy.DMG ],
-                        ["display-text", "Will attack in " + (enemy.ATK / 1000) + "s" ]
+                        ["display-text", "Will attack in " + format(enemy.ATK.div(1000)) + "s" ]
                     ]]
                 ]
             ]
@@ -97,7 +101,7 @@ function playerAttack() {
     if (enemy.HP.lte(0)) {
         player["P"].fighting = false
         player["P"].lookingForTroubles = true
-        player["P"].lookingForTroublesTimer = 0
+        player["P"].lookingForTroublesTimer = new Decimal(0)
 
         generateLoot()
     }
@@ -108,11 +112,11 @@ function enemyAttack() {
     if (player["P"].currentHealth.lte(0)) {
         player["P"].fighting = false
         player["P"].lookingForTroubles = false
-        player["P"].lookingForTroublesTimer = 0
+        player["P"].lookingForTroublesTimer = new Decimal(0)
     }
 }
 
 function generateLoot() {
-    player["P"].points = player["P"].points.add(1)
+    player["P"].points = player["P"].points.add(1).add(player["P"].INT)
     player.points = player.points.add(1)
 }
