@@ -219,7 +219,7 @@ addLayer("P", {
             onClick() {
                 player[this.layer].STR = player[this.layer].STR.add(1)
                 player[this.layer].levels = player[this.layer].levels.sub(1)
-                player[this.layer].damage = new Decimal(2).add(player[this.layer].STR).mul(new Decimal(2).pow(getBuyableAmount("L", "shop-sword"))).ceil() 
+                player["P"].damage = new Decimal(2).mul(new Decimal(new Decimal(2).add(player["P"].STR)).pow(getBuyableAmount("L", "shop-sword")))
             },
             style() { return { "height": "50px", "width": "50px", "min-height": "50px" } }
         },
